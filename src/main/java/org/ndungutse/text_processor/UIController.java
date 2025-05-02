@@ -10,6 +10,7 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import org.ndungutse.text_processor.service.FileHandler;
 import org.ndungutse.text_processor.service.RegexService;
+import org.ndungutse.text_processor.util.AppContext;
 
 import java.io.File;
 import java.io.IOException;
@@ -17,6 +18,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.PatternSyntaxException;
 
 public class UIController {
     @FXML
@@ -31,7 +33,7 @@ public class UIController {
 
 
     private final FileHandler fileHandler = new FileHandler();
-    private final RegexService regexService = new RegexService();
+    private final RegexService regexService = AppContext.getRegexService();
     private Path selectedFile;
     // Fields to store match indices and current match index
     private List<int[]> matchIndices = new ArrayList<>();
@@ -67,13 +69,10 @@ public class UIController {
 
     @FXML
     private void handleMatchPattern() {
+
+        try {
         String pattern = patternField.getText();
         String text = textArea.getText();
-
-        if (!regexService.isValidPattern(pattern)) {
-            regexStatusLabel.setText("❌ Invalid regex pattern.");
-            return;
-        }
 
         this.matchIndices = regexService.getMatchIndices(pattern, text);
         int count = this.matchIndices.size();
@@ -86,6 +85,9 @@ public class UIController {
             nextMatchButton.setDisable(false);
             highlightMatch();
         }
+        }catch (PatternSyntaxException e){
+            System.out.println(e.getMessage());
+        }
     }
 
     @FXML
@@ -94,27 +96,25 @@ public class UIController {
         String replacement = replaceField.getText();
         String text = textArea.getText();
 
-        if (!regexService.isValidPattern(pattern)) {
-            regexStatusLabel.setText("❌ Invalid regex pattern.");
-            return;
-        }
-
-        String newText = regexService.replaceAll(pattern, replacement, text);
+        String newText = fileHandler.replaceAll(pattern, replacement, text);
         textArea.setText(newText);
         regexStatusLabel.setText("✅ All matches replaced.");
     }
+
     public void handlePreviousMatch(ActionEvent event) {
         if (currentMatch > 0) {
             currentMatch--;
             highlightMatch();
         }
     }
+
     public void handleNextMatch(ActionEvent event) {
         if (currentMatch < matchIndices.size() - 1) {
             currentMatch++;
             highlightMatch();
         }
     }
+
     private void highlightMatch() {
         textArea.selectRange(matchIndices.get(currentMatch)[0], matchIndices.get(currentMatch)[1]);
     }

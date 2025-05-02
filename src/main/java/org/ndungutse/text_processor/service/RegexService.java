@@ -28,11 +28,6 @@ public class RegexService {
         return matches;
     }
 
-    public String replaceAll(String pattern, String replacement, String text) throws PatternSyntaxException {
-        Pattern compiledPattern = Pattern.compile(pattern);
-        Matcher matcher = compiledPattern.matcher(text);
-        return matcher.replaceAll(replacement);
-    }
 
     public List<String> extractMatches(String pattern, String text) throws PatternSyntaxException {
         Pattern compiledPattern = Pattern.compile(pattern);
@@ -42,13 +37,7 @@ public class RegexService {
         while (matcher.find()) {
             results.add(matcher.group());
         }
-
         return results;
     }
 
-    public String replaceFirst(String pattern, String replacement, String text) throws PatternSyntaxException {
-        Pattern compiledPattern = Pattern.compile(pattern);
-        Matcher matcher = compiledPattern.matcher(text);
-        return matcher.replaceFirst(replacement);
-    }
 }
