@@ -2,7 +2,9 @@ package org.ndungutse.text_processor;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import org.ndungutse.text_processor.service.FileHandler;
@@ -15,6 +17,10 @@ import java.nio.file.Path;
 public class UIController {
     @FXML
     private TextArea textArea;
+    @FXML private TextField patternField;
+    @FXML private TextField replaceField;
+    @FXML private Label regexStatusLabel;
+
 
     private final FileHandler fileHandler = new FileHandler();
     private Path selectedFile;
@@ -45,5 +51,11 @@ public class UIController {
         } catch (IOException e) {
             textArea.setText("Error saving file: " + e.getMessage());
         }
+    }
+
+    public void handleMatchPattern(ActionEvent event) {
+    }
+
+    public void handleReplaceAll(ActionEvent event) {
     }
 }
