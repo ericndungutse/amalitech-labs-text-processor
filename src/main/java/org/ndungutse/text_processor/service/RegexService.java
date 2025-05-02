@@ -46,23 +46,6 @@ public class RegexService {
         return results;
     }
 
-    public Stream<String> streamMatches(String pattern, String text) throws PatternSyntaxException {
-        Pattern compiledPattern = Pattern.compile(pattern);
-        Matcher matcher = compiledPattern.matcher(text);
-
-        List<String> results = new ArrayList<>();
-        while (matcher.find()) {
-            results.add(matcher.group());
-        }
-
-        return results.stream();
-    }
-
-
-    public long countMatches(String pattern, String text) throws PatternSyntaxException {
-        return streamMatches(pattern, text).count();
-    }
-
     public String replaceFirst(String pattern, String replacement, String text) throws PatternSyntaxException {
         Pattern compiledPattern = Pattern.compile(pattern);
         Matcher matcher = compiledPattern.matcher(text);
