@@ -18,20 +18,29 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.PatternSyntaxException;
+import java.util.stream.Collectors;
 
 public class UIController {
     @FXML
     private TextArea textArea;
-    @FXML private TextField patternField;
-    @FXML private TextField replaceField;
-    @FXML private Label regexStatusLabel;
+    @FXML
+    private TextField patternField;
+    @FXML
+    private TextField replaceField;
+    @FXML
+    private Label regexStatusLabel;
+    @FXML
+    private TextField batchPatternField;
+    @FXML
+    private TextField batchReplaceField;
+    @FXML
+    private Label batchRegexStatusLabel;
     @FXML
     private ListView<String> fileListView;
     @FXML
     private Button previousMatchButton;
     @FXML
     private Button nextMatchButton;
-
 
     private final FileHandler fileHandler = new FileHandler();
     private final RegexService regexService = AppContext.getRegexService();
@@ -60,33 +69,34 @@ public class UIController {
     }
 
     public void handleSaveFile(ActionEvent event) {
-        if (selectedFile != null) try {
-            // Save content back to the file
-            Files.writeString(selectedFile, textArea.getText());
-        } catch (IOException e) {
-            textArea.setText("Error saving file: " + e.getMessage());
-        }
+        if (selectedFile != null)
+            try {
+                // Save content back to the file
+                Files.writeString(selectedFile, textArea.getText());
+            } catch (IOException e) {
+                textArea.setText("Error saving file: " + e.getMessage());
+            }
     }
 
     @FXML
     private void handleMatchPattern() {
 
         try {
-        String pattern = patternField.getText();
-        String text = textArea.getText();
+            String pattern = patternField.getText();
+            String text = textArea.getText();
 
-        this.matchIndices = regexService.getMatchIndices(pattern, text);
-        int count = this.matchIndices.size();
+            this.matchIndices = regexService.getMatchIndices(pattern, text);
+            int count = this.matchIndices.size();
 
-        if (count == 0) {
-            regexStatusLabel.setText("No matches found.");
-        } else {
-            regexStatusLabel.setText("✅ Matches found: " + count);
-            previousMatchButton.setDisable(false);
-            nextMatchButton.setDisable(false);
-            highlightMatch();
-        }
-        }catch (PatternSyntaxException e){
+            if (count == 0) {
+                regexStatusLabel.setText("No matches found.");
+            } else {
+                regexStatusLabel.setText("✅ Matches found: " + count);
+                previousMatchButton.setDisable(false);
+                nextMatchButton.setDisable(false);
+                highlightMatch();
+            }
+        } catch (PatternSyntaxException e) {
             System.out.println(e.getMessage());
         }
     }
@@ -125,26 +135,52 @@ public class UIController {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Select Files");
 
-        // Optional: Set extension filters
         fileChooser.getExtensionFilters().addAll(
                 new FileChooser.ExtensionFilter("Text Files", "*.txt"),
                 new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg"),
                 new FileChooser.ExtensionFilter("All Files", "*.*")
         );
 
-        // Show open multiple files dialog
         List<File> selectedFiles = fileChooser.showOpenMultipleDialog(new Stage());
         if (selectedFiles != null && !selectedFiles.isEmpty()) {
-            ObservableList<String> fileNames = FXCollections.observableArrayList();
+            ObservableList<String> filePaths = FXCollections.observableArrayList();
             for (File file : selectedFiles) {
-                fileNames.add(file.getName()); // Add only the file name
+                filePaths.add(file.getAbsolutePath()); // ✅ Use full path
             }
-            fileListView.setItems(fileNames); // Update ListView with selected file names
+            fileListView.setItems(filePaths); // ✅ Set full paths in ListView
         } else {
             System.out.println("File selection cancelled.");
         }
     }
 
+    @FXML
+    public void handleBatchReplace(ActionEvent event) {
+        String patternText = batchPatternField.getText();
+        String replacementText = batchReplaceField.getText();
 
+        if (patternText == null || patternText.isEmpty()) {
+            batchRegexStatusLabel.setText("Pattern cannot be empty.");
+            return;
+        }
+
+        ObservableList<String> selectedFilePaths = fileListView.getItems(); // full paths now
+        if (selectedFilePaths.isEmpty()) {
+            batchRegexStatusLabel.setText("No files selected.");
+            return;
+        }
+
+        List<Path> filePaths = selectedFilePaths.stream()
+                .map(Path::of)
+                .collect(Collectors.toList());
+
+        FileHandler fileHandler = new FileHandler();
+        try {
+            fileHandler.replacePatternInFiles(filePaths, patternText, replacementText);
+            batchRegexStatusLabel.setText("Replaced in " + filePaths.size() + " file(s).");
+        } catch (IOException | PatternSyntaxException e) {
+            e.printStackTrace();
+            batchRegexStatusLabel.setText("Error: " + e.getMessage());
+        }
+    }
 
 }

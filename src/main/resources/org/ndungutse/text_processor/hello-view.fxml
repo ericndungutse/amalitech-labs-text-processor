@@ -57,6 +57,24 @@
             <!-- ListView to show selected files -->
             <ListView fx:id="fileListView" prefHeight="200" prefWidth="280"/>
 
+            <!-- Batch Regex Replace Section -->
+            <Separator />
+
+            <Label text="Batch Regex Replace" style="-fx-font-weight: bold; -fx-font-size: 14;"/>
+
+            <HBox spacing="10" alignment="CENTER">
+                <Label text="Pattern:"/>
+                <TextField fx:id="batchPatternField" promptText="Regex pattern" prefWidth="180"/>
+            </HBox>
+
+            <HBox spacing="10" alignment="CENTER">
+                <Label text="Replace:"/>
+                <TextField fx:id="batchReplaceField" promptText="Replacement text" prefWidth="180"/>
+            </HBox>
+
+            <Button text="Apply to All Files" onAction="#handleBatchReplace" maxWidth="Infinity"/>
+
+            <Label fx:id="batchRegexStatusLabel" text="" style="-fx-text-fill: green;"/>
         </VBox>
     </right>
 </BorderPane>

@@ -3,13 +3,14 @@ package org.ndungutse.text_processor.service;
 import org.ndungutse.text_processor.util.AppContext;
 
 import java.io.*;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 public class FileHandler {
-    private final RegexService  regexService = AppContext.getRegexService();
+    private final RegexService regexService = AppContext.getRegexService();
 
     public String readFile(String path) throws IOException {
         StringBuilder content = new StringBuilder();
@@ -51,5 +52,15 @@ public class FileHandler {
         }
 
         return updatedText.toString();
+    }
+
+    public void replacePatternInFiles(List<Path> filePaths, String pattern, String replacement)
+            throws IOException, PatternSyntaxException {
+        for (Path filePath : filePaths) {
+            String content = readFile(filePath.toString());
+            String updatedContent = replaceAll(pattern, replacement, content);
+            writeFile(filePath.toString(), updatedContent);
+            System.out.println("Processed file: " + filePath.getFileName());
+        }
     }
 }
