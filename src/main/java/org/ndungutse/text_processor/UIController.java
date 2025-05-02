@@ -1,11 +1,10 @@
 package org.ndungutse.text_processor;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import org.ndungutse.text_processor.service.FileHandler;
@@ -26,6 +25,8 @@ public class UIController {
     @FXML private TextField patternField;
     @FXML private TextField replaceField;
     @FXML private Label regexStatusLabel;
+    @FXML
+    private ListView<String> fileListView;
     @FXML
     private Button previousMatchButton;
     @FXML
@@ -118,4 +119,32 @@ public class UIController {
     private void highlightMatch() {
         textArea.selectRange(matchIndices.get(currentMatch)[0], matchIndices.get(currentMatch)[1]);
     }
+
+    @FXML
+    public void handleFilesSelect() {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Select Files");
+
+        // Optional: Set extension filters
+        fileChooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("Text Files", "*.txt"),
+                new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg"),
+                new FileChooser.ExtensionFilter("All Files", "*.*")
+        );
+
+        // Show open multiple files dialog
+        List<File> selectedFiles = fileChooser.showOpenMultipleDialog(new Stage());
+        if (selectedFiles != null && !selectedFiles.isEmpty()) {
+            ObservableList<String> fileNames = FXCollections.observableArrayList();
+            for (File file : selectedFiles) {
+                fileNames.add(file.getName()); // Add only the file name
+            }
+            fileListView.setItems(fileNames); // Update ListView with selected file names
+        } else {
+            System.out.println("File selection cancelled.");
+        }
+    }
+
+
+
 }
