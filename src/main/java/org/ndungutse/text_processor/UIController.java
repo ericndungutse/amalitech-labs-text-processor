@@ -2,22 +2,40 @@ package org.ndungutse.text_processor;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import org.ndungutse.text_processor.service.FileHandler;
+import org.ndungutse.text_processor.service.RegexService;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 
 public class UIController {
     @FXML
     private TextArea textArea;
+    @FXML private TextField patternField;
+    @FXML private TextField replaceField;
+    @FXML private Label regexStatusLabel;
+    @FXML
+    private Button previousMatchButton;
+    @FXML
+    private Button nextMatchButton;
+
 
     private final FileHandler fileHandler = new FileHandler();
+    private final RegexService regexService = new RegexService();
     private Path selectedFile;
+    // Fields to store match indices and current match index
+    private List<int[]> matchIndices = new ArrayList<>();
+    private int currentMatch = 0;
 
     public void handleLoadFile(ActionEvent event) {
         FileChooser fileChooser = new FileChooser();
@@ -45,5 +63,59 @@ public class UIController {
         } catch (IOException e) {
             textArea.setText("Error saving file: " + e.getMessage());
         }
+    }
+
+    @FXML
+    private void handleMatchPattern() {
+        String pattern = patternField.getText();
+        String text = textArea.getText();
+
+        if (!regexService.isValidPattern(pattern)) {
+            regexStatusLabel.setText("❌ Invalid regex pattern.");
+            return;
+        }
+
+        this.matchIndices = regexService.getMatchIndices(pattern, text);
+        int count = this.matchIndices.size();
+
+        if (count == 0) {
+            regexStatusLabel.setText("No matches found.");
+        } else {
+            regexStatusLabel.setText("✅ Matches found: " + count);
+            previousMatchButton.setDisable(false);
+            nextMatchButton.setDisable(false);
+            highlightMatch();
+        }
+    }
+
+    @FXML
+    private void handleReplaceAll() {
+        String pattern = patternField.getText();
+        String replacement = replaceField.getText();
+        String text = textArea.getText();
+
+        if (!regexService.isValidPattern(pattern)) {
+            regexStatusLabel.setText("❌ Invalid regex pattern.");
+            return;
+        }
+
+        String newText = regexService.replaceAll(pattern, replacement, text);
+        textArea.setText(newText);
+        regexStatusLabel.setText("✅ All matches replaced.");
+    }
+    public void handlePreviousMatch(ActionEvent event) {
+        if (currentMatch > 0) {
+            currentMatch--;
+            highlightMatch();
+        }
+    }
+    public void handleNextMatch(ActionEvent event) {
+        if (currentMatch < matchIndices.size() - 1) {
+            currentMatch++;
+            highlightMatch();
+        }
+    }
+    private void highlightMatch() {
+        textArea.selectRange(matchIndices.get(currentMatch)[0], matchIndices.get(currentMatch)[1]);
     }
 }
