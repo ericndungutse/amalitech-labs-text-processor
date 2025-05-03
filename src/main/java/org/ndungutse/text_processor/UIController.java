@@ -17,6 +17,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.PatternSyntaxException;
 import java.util.stream.Collectors;
 
@@ -68,7 +69,8 @@ public class UIController {
         }
     }
 
-    public void handleSaveFile(ActionEvent event) {
+    @FXML
+    public void handleSaveFile() {
         if (selectedFile != null)
             try {
                 // Save content back to the file
@@ -199,5 +201,30 @@ public class UIController {
             batchRegexStatusLabel.setText("Error processing files.");
             e.printStackTrace();
         }
+    }
+
+    @FXML
+    public void handleWordFrequency() {
+        ObservableList<String> selectedFilePaths = fileListView.getItems();
+        if (selectedFilePaths.isEmpty()) {
+            batchRegexStatusLabel.setText("No files selected.");
+            return;
+        }
+
+        List<Path> filePaths = selectedFilePaths.stream()
+                .map(path -> Path.of(path))
+                .collect(Collectors.toList());
+
+        try {
+
+            // Analyze word frequencies
+            String frequencies = fileHandler.generateWordFrequency(filePaths);
+
+            // Display result in the TextArea
+            textArea.setText(frequencies);
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+        }
+
     }
 }

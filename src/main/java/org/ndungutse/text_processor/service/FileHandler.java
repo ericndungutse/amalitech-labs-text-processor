@@ -5,8 +5,10 @@ import org.ndungutse.text_processor.util.AppContext;
 import java.io.*;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -88,4 +90,41 @@ public class FileHandler {
 
         return String.join("\n", result);
     }
+
+    // Words frequency analysis
+    // Words frequency analysis
+    public String generateWordFrequency(List<Path> filePaths) throws IOException {
+        Map<String, Integer> wordCounts = new HashMap<>();
+
+        // Process each file
+        for (Path filePath : filePaths) {
+            String content = readFile(filePath.toString());
+
+            // Remove non-word characters and split words by spaces
+            String[] words = content.toLowerCase().replaceAll("[^a-z0-9\\s]", "").split("\\s+");
+
+            // Count occurrences of each word
+            for (String word : words) {
+                if (!word.isBlank()) {
+                    wordCounts.put(word, wordCounts.getOrDefault(word, 0) + 1);
+                }
+            }
+        }
+
+        // Use StringBuilder to format the result
+        StringBuilder resultBuilder = new StringBuilder();
+
+        // Sort by word frequency in descending order
+        wordCounts.entrySet().stream()
+                .sorted((e1, e2) -> e2.getValue().compareTo(e1.getValue()))
+                .forEach(entry -> resultBuilder
+                        .append(entry.getKey())
+                        .append(": ")
+                        .append(entry.getValue())
+                        .append("\n"));
+
+        // Return the result as a string
+        return resultBuilder.toString();
+    }
+
 }

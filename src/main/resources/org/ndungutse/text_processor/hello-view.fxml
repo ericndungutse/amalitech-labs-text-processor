@@ -39,6 +39,7 @@
             <HBox spacing="10">
                 <Button text="Load File" onAction="#handleLoadFile"/>
                 <Button text="Save File" onAction="#handleSaveFile"/>
+                <Button text="Word Frequency" onAction="#handleWordFrequency"/>
             </HBox>
         </VBox>
     </center>
