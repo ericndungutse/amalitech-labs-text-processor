@@ -69,15 +69,48 @@ public class UIController {
         }
     }
 
+    // Saving Files
+
     @FXML
     public void handleSaveFile() {
-        if (selectedFile != null)
+        if (selectedFile != null) {
+            handleSaveExistingFile();
+        } else {
+            handleSaveNewFile();
+        }
+    }
+
+    @FXML
+    public void handleSaveExistingFile() {
+        // Check if a file has been selected (existing file)
+        if (selectedFile != null) {
             try {
-                // Save content back to the file
+                // Save the content of the text area (analysis results) to the selected file
                 Files.writeString(selectedFile, textArea.getText());
             } catch (IOException e) {
                 textArea.setText("Error saving file: " + e.getMessage());
             }
+        } else {
+            textArea.setText("No file selected to save.");
+        }
+    }
+
+    // Save New FIle
+    @FXML
+    public void handleSaveNewFile() {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Text Files", "*.txt"));
+        fileChooser.setInitialFileName("newfile.txt");
+
+        File newSelectedFile = fileChooser.showSaveDialog(null);
+
+        if (newSelectedFile != null) {
+            try {
+                Files.writeString(newSelectedFile.toPath(), textArea.getText());
+            } catch (IOException e) {
+                textArea.setText("Error saving file: " + e.getMessage());
+            }
+        }
     }
 
     @FXML
