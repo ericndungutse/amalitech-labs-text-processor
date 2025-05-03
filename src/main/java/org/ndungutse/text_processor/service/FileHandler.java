@@ -4,10 +4,14 @@ import org.ndungutse.text_processor.util.AppContext;
 
 import java.io.*;
 import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
+import java.util.stream.Collectors;
 
 public class FileHandler {
     private final RegexService regexService = AppContext.getRegexService();
@@ -62,5 +66,26 @@ public class FileHandler {
             writeFile(filePath.toString(), updatedContent);
             System.out.println("Processed file: " + filePath.getFileName());
         }
+    }
+
+    // Remove Duplicate lines in a patch of files
+    public void removeDuplicateInBatchOfFiles(List<Path> filePaths)
+            throws IOException {
+        for (Path filePath : filePaths) {
+            String content = readFile(filePath.toString());
+            String updatedContent = removeDuplicates(content);
+            writeFile(filePath.toString(), updatedContent);
+            System.out.println("Processed file: " + filePath.getFileName());
+        }
+    }
+
+    // Remove Duplicates
+    public String removeDuplicates(String text) {
+        Set<String> result = Arrays
+                .stream(text.split("\n"))
+                .map(String::trim)
+                .collect(Collectors.toCollection(LinkedHashSet::new));
+
+        return String.join("\n", result);
     }
 }

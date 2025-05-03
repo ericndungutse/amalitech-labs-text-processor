@@ -138,8 +138,7 @@ public class UIController {
         fileChooser.getExtensionFilters().addAll(
                 new FileChooser.ExtensionFilter("Text Files", "*.txt"),
                 new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg"),
-                new FileChooser.ExtensionFilter("All Files", "*.*")
-        );
+                new FileChooser.ExtensionFilter("All Files", "*.*"));
 
         List<File> selectedFiles = fileChooser.showOpenMultipleDialog(new Stage());
         if (selectedFiles != null && !selectedFiles.isEmpty()) {
@@ -154,7 +153,7 @@ public class UIController {
     }
 
     @FXML
-    public void handleBatchReplace(ActionEvent event) {
+    public void handleBatchReplace() {
         String patternText = batchPatternField.getText();
         String replacementText = batchReplaceField.getText();
 
@@ -163,7 +162,7 @@ public class UIController {
             return;
         }
 
-        ObservableList<String> selectedFilePaths = fileListView.getItems(); // full paths now
+        ObservableList<String> selectedFilePaths = fileListView.getItems();
         if (selectedFilePaths.isEmpty()) {
             batchRegexStatusLabel.setText("No files selected.");
             return;
@@ -173,7 +172,6 @@ public class UIController {
                 .map(Path::of)
                 .collect(Collectors.toList());
 
-        FileHandler fileHandler = new FileHandler();
         try {
             fileHandler.replacePatternInFiles(filePaths, patternText, replacementText);
             batchRegexStatusLabel.setText("Replaced in " + filePaths.size() + " file(s).");
@@ -183,4 +181,23 @@ public class UIController {
         }
     }
 
+    @FXML
+    private void handleRemoveDuplicatesInBatch() {
+        ObservableList<String> selectedFilePaths = fileListView.getItems();
+        if (selectedFilePaths.isEmpty()) {
+            batchRegexStatusLabel.setText("No files selected.");
+            return;
+        }
+        try {
+            List<Path> filePaths = selectedFilePaths.stream()
+                    .map(Path::of)
+                    .collect(Collectors.toList());
+
+            fileHandler.removeDuplicateInBatchOfFiles(filePaths);
+            batchRegexStatusLabel.setText("Remove duplicate lines in " + filePaths.size() + " file(s).");
+        } catch (IOException e) {
+            batchRegexStatusLabel.setText("Error processing files.");
+            e.printStackTrace();
+        }
+    }
 }

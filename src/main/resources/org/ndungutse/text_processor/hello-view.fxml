@@ -75,6 +75,11 @@
             <Button text="Apply to All Files" onAction="#handleBatchReplace" maxWidth="Infinity"/>
 
             <Label fx:id="batchRegexStatusLabel" text="" style="-fx-text-fill: green;"/>
+
+            <!-- New Button for Removing Duplicate Lines -->
+            <Button text="Remove Duplicate Lines" onAction="#handleRemoveDuplicatesInBatch" maxWidth="Infinity"/>
+
+            <Label fx:id="batchDuplicateStatusLabel" text="" style="-fx-text-fill: green;"/>
         </VBox>
     </right>
 </BorderPane>
