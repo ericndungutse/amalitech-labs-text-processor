@@ -97,7 +97,6 @@ public class FileHandler {
     }
 
     // Words frequency analysis
-    // Words frequency analysis
     public String generateWordFrequency(List<Path> filePaths) throws IOException {
         Map<String, Integer> wordCounts = new HashMap<>();
 
@@ -135,30 +134,135 @@ public class FileHandler {
     public String extractInfo(List<Path> filePaths, String delimiter, String condition, String fieldsToExtract)
             throws IOException {
 
-        List<List<String>> resultList = new ArrayList<>();
-
-        for (Path filePath : filePaths) {
-            // get the file content
-            String content = readFile(filePath.toString());
-
-            // Indices
-            List<String> fieldsIndices = new ArrayList<>(Arrays.asList(fieldsToExtract.split(",")));
-
-            // [ --- --- ---- ----, ----- ---- -----]
-            List<String> contentList = new ArrayList<>(Arrays.asList(content.split("\n")));
-
-            resultList = contentList.stream()
-                    .map(line -> {
-                        List<String> lineArr = Arrays.asList(line.split(","));
-                        return fieldsIndices.stream()
-                                .map(field -> lineArr.get(Integer.parseInt(field) - 1))
-                                .toList();
-                    })
-                    .toList();
+        if (delimiter == null || delimiter.isEmpty()) {
+            throw new IllegalArgumentException("Delimiter must be provided.");
         }
 
-        return resultList.stream().map(res -> String.join(",", res)).collect(Collectors.joining("\n"));
+        StringBuilder finalResult = new StringBuilder();
 
+        for (Path filePath : filePaths) {
+            // Read file content
+            String content = readFile(filePath.toString());
+
+            // Split into lines
+            List<String> contentLines = new ArrayList<>(Arrays.asList(content.split("\n")));
+
+            // Filter lines if condition is present
+            if (condition != null && !condition.isBlank()) {
+                contentLines = Arrays.asList(filterLinesByCondition(contentLines, condition, delimiter).split("\n"));
+            }
+
+            // Select fields if fieldsToExtract is present
+            String result;
+            if (fieldsToExtract != null && !fieldsToExtract.isBlank()) {
+                List<String> fieldIndices = new ArrayList<>(Arrays.asList(fieldsToExtract.split(",")));
+                result = extractFieldsFromContent(contentLines, fieldIndices, delimiter);
+            } else {
+                result = String.join("\n", contentLines);
+            }
+
+            if (!result.isEmpty()) {
+                if (finalResult.length() > 0) {
+                    finalResult.append("\n");
+                }
+                finalResult.append(result);
+            }
+        }
+
+        return finalResult.toString();
+    }
+
+    // FIlter content/lines by condition based on field defined by delimeter
+    public String filterLinesByCondition(List<String> lines, String condition, String delimiter) {
+        String[] operators = { "<=", ">=", "!=", "=", "<", ">" };
+        String operatorUsed = null;
+
+        for (String op : operators) {
+            if (condition.contains(op)) {
+                operatorUsed = op;
+                break;
+            }
+        }
+
+        if (operatorUsed == null) {
+            throw new IllegalArgumentException("Invalid condition: No operator found.");
+        }
+
+        String[] operands = condition.split(operatorUsed);
+
+        int fieldIndex;
+        try {
+            fieldIndex = Integer.parseInt(operands[0].trim()) - 1;
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Invalid field index in condition: " + operands[0]);
+        }
+
+        String expectedValue = operands[1].trim();
+        List<String> result = new ArrayList<>();
+
+        for (String line : lines) {
+            String[] fields = line.trim().split(delimiter);
+
+            if (fieldIndex >= fields.length)
+                continue;
+
+            String actualField = fields[fieldIndex].trim();
+
+            boolean actualIsNumeric = isNumeric(actualField);
+            boolean expectedIsNumeric = isNumeric(expectedValue);
+
+            boolean matches;
+
+            if (actualIsNumeric && expectedIsNumeric) {
+                double actualNum = Double.parseDouble(actualField);
+                double expectedNum = Double.parseDouble(expectedValue);
+
+                matches = switch (operatorUsed) {
+                    case "=" -> actualNum == expectedNum;
+                    case "!=" -> actualNum != expectedNum;
+                    case ">" -> actualNum > expectedNum;
+                    case "<" -> actualNum < expectedNum;
+                    case ">=" -> actualNum >= expectedNum;
+                    case "<=" -> actualNum <= expectedNum;
+                    default -> false;
+                };
+            } else {
+                // Handle string comparison (only "=" operator allowed)
+                if (!operatorUsed.equals("=")) {
+                    throw new IllegalArgumentException("Invalid operator for string comparison: " + operatorUsed);
+                }
+
+                // Perform case insensitive string comparison for equality
+                matches = actualField.equalsIgnoreCase(expectedValue);
+            }
+
+            if (matches) {
+                result.add(line);
+            }
+        }
+
+        return result.stream().collect(Collectors.joining("\n"));
+    }
+
+    // Select certain fields
+    private String extractFieldsFromContent(List<String> contentList, List<String> fieldsIndices,
+            String delimiter) {
+        return contentList.stream()
+                .map(line -> {
+                    List<String> lineArr = Arrays.asList(line.split(delimiter));
+                    return fieldsIndices.stream()
+                            .map(field -> lineArr.get(Integer.parseInt(field.trim()) - 1))
+                            .collect(Collectors.joining(delimiter));
+                }).collect(Collectors.joining("\n"));
+    }
+
+    private boolean isNumeric(String s) {
+        try {
+            Double.parseDouble(s);
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
     }
 
 }
