@@ -1,10 +1,11 @@
 package org.ndungutse.text_processor.service;
 
-import org.ndungutse.text_processor.util.AppContext;
-
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -12,13 +13,10 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Function;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
+
+import org.ndungutse.text_processor.util.AppContext;
 
 public class FileHandler {
     private final RegexService regexService = AppContext.getRegexService();
@@ -172,7 +170,7 @@ public class FileHandler {
         return finalResult.toString();
     }
 
-    // FIlter content/lines by condition based on field defined by delimeter
+    // FIlter content/lines by condition based on field defined by delimiter
     public String filterLinesByCondition(List<String> lines, String condition, String delimiter) {
         String[] operators = { "<=", ">=", "!=", "=", "<", ">" };
         String operatorUsed = null;

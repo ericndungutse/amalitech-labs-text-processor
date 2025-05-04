@@ -1,25 +1,28 @@
 package org.ndungutse.text_processor;
 
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
-import javafx.fxml.FXML;
-import javafx.scene.control.*;
-import javafx.stage.FileChooser;
-import javafx.stage.Stage;
-import org.ndungutse.text_processor.service.FileHandler;
-import org.ndungutse.text_processor.service.RegexService;
-import org.ndungutse.text_processor.util.AppContext;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.regex.PatternSyntaxException;
 import java.util.stream.Collectors;
+
+import org.ndungutse.text_processor.service.FileHandler;
+import org.ndungutse.text_processor.service.RegexService;
+import org.ndungutse.text_processor.util.AppContext;
+
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.fxml.FXML;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
+import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 
 public class UIController {
     @FXML
@@ -61,7 +64,7 @@ public class UIController {
     private List<int[]> matchIndices = new ArrayList<>();
     private int currentMatch = 0;
 
-    public void handleLoadFile(ActionEvent event) {
+    public void handleLoadFile() {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Open Text File");
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Text Files", "*.txt"));
@@ -81,7 +84,6 @@ public class UIController {
     }
 
     // Saving Files
-
     @FXML
     public void handleSaveFile() {
         if (selectedFile != null) {
@@ -158,14 +160,14 @@ public class UIController {
         regexStatusLabel.setText("✅ All matches replaced.");
     }
 
-    public void handlePreviousMatch(ActionEvent event) {
+    public void handlePreviousMatch() {
         if (currentMatch > 0) {
             currentMatch--;
             highlightMatch();
         }
     }
 
-    public void handleNextMatch(ActionEvent event) {
+    public void handleNextMatch() {
         if (currentMatch < matchIndices.size() - 1) {
             currentMatch++;
             highlightMatch();
@@ -283,13 +285,6 @@ public class UIController {
         String delimiter = delimiterField.getText().trim();
         String condition = conditionField.getText().trim();
         String fieldsToExtract = extractExprField.getText().trim();
-
-        // if (delimiter.isEmpty() || condition.isEmpty() || fieldsToExtract.isEmpty())
-        // {
-        // extractStatusLabel.setText("All fields (delimiter, condition, extract fields)
-        // are required.");
-        // return;
-        // }
 
         List<Path> filePaths = selectedFilePaths.stream()
                 .map(Path::of)

@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
-import java.util.stream.Stream;
 
 public class RegexService {
     public boolean isValidPattern(String pattern) {
@@ -23,11 +22,10 @@ public class RegexService {
         Matcher matcher = compiledPattern.matcher(text);
 
         while (matcher.find()) {
-            matches.add(new int[]{matcher.start(), matcher.end()});
+            matches.add(new int[] { matcher.start(), matcher.end() });
         }
         return matches;
     }
-
 
     public List<String> extractMatches(String pattern, String text) throws PatternSyntaxException {
         Pattern compiledPattern = Pattern.compile(pattern);
