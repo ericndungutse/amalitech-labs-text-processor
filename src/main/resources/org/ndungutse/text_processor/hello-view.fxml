@@ -1,38 +1,135 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.control.TextArea?>
-<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
 
-<VBox alignment="CENTER" spacing="20.0" xmlns:fx="http://javafx.com/fxml"
-      fx:controller="org.ndungutse.text_processor.UIController">
-    <TextArea fx:id="textArea" prefHeight="400" prefWidth="600"/>
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="org.ndungutse.text_processor.UIController"
+            prefWidth="1300" prefHeight="800"
+            style="-fx-font-family: 'Segoe UI'; -fx-background-color: #f0f2f5;">
 
-    <!-- Regex Controls -->
-    <HBox spacing="10" alignment="CENTER">
-        <Label text="Pattern:"/>
-        <TextField fx:id="patternField" promptText="Enter regex pattern" prefWidth="200"/>
-        <Label text="Replace with:"/>
-        <TextField fx:id="replaceField" promptText="Replacement text" prefWidth="200"/>
-    </HBox>
+    <!-- CENTER -->
+    <center>
+        <VBox spacing="20" alignment="TOP_CENTER" style="-fx-padding: 20;">
+            <Label text="Text Editor"
+                   style="-fx-font-size: 20px; -fx-font-weight: bold;"/>
 
-    <HBox spacing="10" alignment="CENTER">
-        <Button text="Match Pattern" onAction="#handleMatchPattern"/>
-        <Button text="Replace All" onAction="#handleReplaceAll"/>
-        <Label fx:id="regexStatusLabel" text="" style="-fx-text-fill: red;"/>
-    </HBox>
+            <TextArea fx:id="textArea" prefHeight="450" prefWidth="950" wrapText="true"
+                      style="-fx-font-size: 14px; -fx-border-color: #ccc; -fx-border-radius: 5px; -fx-background-radius: 5px;"/>
 
-    <HBox spacing="10" alignment="CENTER">
-        <Button text="Previous Match" onAction="#handlePreviousMatch" fx:id="previousMatchButton" disable="true"/>
-        <Button text="Next Match" onAction="#handleNextMatch" fx:id="nextMatchButton" disable="true"/>
-    </HBox>
+            <GridPane hgap="15" vgap="10"
+                      style="-fx-background-color: #fff; -fx-border-color: #ddd; -fx-border-radius: 5px; -fx-padding: 15; -fx-background-radius: 5px;">
+                <Label text="Regex Pattern:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                <TextField fx:id="patternField" promptText="Enter regex pattern" prefWidth="350"
+                           GridPane.rowIndex="0" GridPane.columnIndex="1"/>
 
-    <HBox spacing="10">
-        <Button text="Load File" onAction="#handleLoadFile"/>
-        <Button text="Save File" onAction="#handleSaveFile"/>
-    </HBox>
-</VBox>
+                <Label text="Replacement:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                <TextField fx:id="replaceField" promptText="Replacement text" prefWidth="350"
+                           GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+            </GridPane>
+
+            <HBox spacing="15" alignment="CENTER" style="-fx-padding: 10 0 0 0;">
+                <Button text="Match Pattern" onAction="#handleMatchPattern"
+                        style="-fx-background-color: #4285F4; -fx-text-fill: white; -fx-background-radius: 5px; -fx-padding: 8 16;"/>
+                <Button text="Replace All" onAction="#handleReplaceAll"
+                        style="-fx-background-color: #34A853; -fx-text-fill: white; -fx-background-radius: 5px; -fx-padding: 8 16;"/>
+                <Label fx:id="regexStatusLabel" text=""
+                       style="-fx-text-fill: red; -fx-font-weight: bold;"/>
+            </HBox>
+
+            <HBox spacing="15" alignment="CENTER" style="-fx-padding: 5 0 0 0;">
+                <Button fx:id="previousMatchButton" text="Previous Match" onAction="#handlePreviousMatch" disable="true"
+                        style="-fx-background-color: #fbbc05; -fx-text-fill: white; -fx-background-radius: 5px; -fx-padding: 6 14;"/>
+                <Button fx:id="nextMatchButton" text="Next Match" onAction="#handleNextMatch" disable="true"
+                        style="-fx-background-color: #fbbc05; -fx-text-fill: white; -fx-background-radius: 5px; -fx-padding: 6 14;"/>
+            </HBox>
+
+            <ToolBar style="-fx-background-color: transparent; -fx-padding: 10 0 0 0;">
+                <Button text="Load File" onAction="#handleLoadFile"
+                        style="-fx-background-color: #6c757d; -fx-text-fill: white; -fx-background-radius: 5px;"/>
+                <Button text="Save File" onAction="#handleSaveFile"
+                        style="-fx-background-color: #6c757d; -fx-text-fill: white; -fx-background-radius: 5px;"/>
+                <Button text="Word Frequency" onAction="#handleWordFrequency"
+                        style="-fx-background-color: #6c757d; -fx-text-fill: white; -fx-background-radius: 5px;"/>
+            </ToolBar>
+        </VBox>
+    </center>
+
+    <!-- RIGHT -->
+    <right>
+        <VBox spacing="15" alignment="TOP_CENTER" prefWidth="450"
+              style="-fx-background-color: #ffffff; -fx-border-color: #ddd; -fx-padding: 20;">
+
+            <Label text="Batch File Processor"
+                   style="-fx-font-size: 20px; -fx-font-weight: bold;"/>
+
+            <TitledPane text="Selected Files" expanded="true"
+                        style="-fx-font-size: 14px; -fx-background-radius: 5px; -fx-border-radius: 5px;">
+                <VBox spacing="10" style="-fx-padding: 10;">
+                    <Button text="Select Files" onAction="#handleFilesSelect" maxWidth="Infinity"
+                            style="-fx-background-color: #4285F4; -fx-text-fill: white; -fx-background-radius: 5px;"/>
+                    <ListView fx:id="fileListView" prefHeight="350"
+                              style="-fx-border-color: #ccc; -fx-border-radius: 5px;"/>
+                </VBox>
+            </TitledPane>
+
+            <TitledPane text="Batch Regex Replace" expanded="true"
+                        style="-fx-font-size: 14px; -fx-background-radius: 5px; -fx-border-radius: 5px;">
+                <VBox spacing="10" style="-fx-padding: 10;">
+                    <GridPane hgap="10" vgap="10">
+                        <Label text="Pattern:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                        <TextField fx:id="batchPatternField" promptText="Regex pattern" prefWidth="230"
+                                   GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+                        <Label text="Replace:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                        <TextField fx:id="batchReplaceField" promptText="Replacement text" prefWidth="230"
+                                   GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+                    </GridPane>
+                    <Button text="Apply to All Files" onAction="#handleBatchReplace" maxWidth="Infinity"
+                            style="-fx-background-color: #34A853; -fx-text-fill: white; -fx-background-radius: 5px;"/>
+                    <Label fx:id="batchRegexStatusLabel" text=""
+                           style="-fx-text-fill: green; -fx-font-weight: bold;"/>
+                </VBox>
+            </TitledPane>
+
+            <TitledPane text="Duplicate Removal" expanded="true"
+                        style="-fx-font-size: 14px; -fx-background-radius: 5px; -fx-border-radius: 5px;">
+                <VBox spacing="10" style="-fx-padding: 10;">
+                    <Button text="Remove Duplicate Lines" onAction="#handleRemoveDuplicatesInBatch" maxWidth="Infinity"
+                            style="-fx-background-color: #ea4335; -fx-text-fill: white; -fx-background-radius: 5px;"/>
+                    <Label fx:id="batchDuplicateStatusLabel" text=""
+                           style="-fx-text-fill: green; -fx-font-weight: bold;"/>
+                </VBox>
+            </TitledPane>
+
+            <TitledPane text="Conditional Field Extractor" expanded="true"
+                        style="-fx-font-size: 14px; -fx-background-radius: 5px; -fx-border-radius: 5px;">
+                <VBox spacing="10" style="-fx-padding: 10;">
+                    <GridPane hgap="10" vgap="10">
+                        <Label text="Delimiter:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                        <TextField fx:id="delimiterField" promptText="e.g. comma, |, ;" prefWidth="230"
+                                   GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+                        <Label text="Condition:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                        <TextArea fx:id="conditionField"
+                                  promptText="e.g. 3 = 599 or 2 != hello or 1 > 25"
+                                  prefWidth="230" prefHeight="60"
+                                  GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+                        <Label text="Fields to Extract:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                        <TextArea fx:id="extractExprField"
+                                  promptText="e.g. 1,5 or 2,3"
+                                  prefWidth="230" prefHeight="60"
+                                  GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+                    </GridPane>
+                    <Button text="Extract" onAction="#handleExtract" maxWidth="Infinity"
+                            style="-fx-background-color: #9c27b0; -fx-text-fill: white; -fx-background-radius: 5px;"/>
+                    <Label fx:id="extractStatusLabel" text=""
+                           style="-fx-text-fill: green; -fx-font-weight: bold;"/>
+                </VBox>
+            </TitledPane>
+
+        </VBox>
+    </right>
+</BorderPane>
