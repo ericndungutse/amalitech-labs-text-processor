@@ -42,6 +42,17 @@ public class UIController {
     private Button previousMatchButton;
     @FXML
     private Button nextMatchButton;
+    @FXML
+    private TextField delimiterField;
+
+    @FXML
+    private TextArea conditionField;
+
+    @FXML
+    private TextArea extractExprField;
+
+    @FXML
+    private Label extractStatusLabel;
 
     private final FileHandler fileHandler = new FileHandler();
     private final RegexService regexService = AppContext.getRegexService();
@@ -261,6 +272,41 @@ public class UIController {
 
     }
 
-    public void handleExtract(ActionEvent event) {
+    @FXML
+    private void handleExtract() {
+        ObservableList<String> selectedFilePaths = fileListView.getItems();
+        if (selectedFilePaths.isEmpty()) {
+            extractStatusLabel.setText("No files selected.");
+            return;
+        }
+
+        String delimiter = delimiterField.getText().trim();
+        String condition = conditionField.getText().trim();
+        String fieldsToExtract = extractExprField.getText().trim();
+
+        // if (delimiter.isEmpty() || condition.isEmpty() || fieldsToExtract.isEmpty())
+        // {
+        // extractStatusLabel.setText("All fields (delimiter, condition, extract fields)
+        // are required.");
+        // return;
+        // }
+
+        List<Path> filePaths = selectedFilePaths.stream()
+                .map(Path::of)
+                .collect(Collectors.toList());
+
+        try {
+
+            String result = fileHandler.extractInfo(filePaths, delimiter, condition,
+                    fieldsToExtract);
+            textArea.setText(result);
+            extractStatusLabel.setText("Extraction successful.");
+
+            textArea.setText(result);
+        } catch (Exception e) {
+            extractStatusLabel.setText("Extraction failed: " + e.getMessage());
+            System.err.println("Extraction error: " + e.getMessage());
+        }
     }
+
 }

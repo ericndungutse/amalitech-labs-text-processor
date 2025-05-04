@@ -4,16 +4,21 @@ import org.ndungutse.text_processor.util.AppContext;
 
 import java.io.*;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class FileHandler {
     private final RegexService regexService = AppContext.getRegexService();
@@ -125,6 +130,35 @@ public class FileHandler {
 
         // Return the result as a string
         return resultBuilder.toString();
+    }
+
+    public String extractInfo(List<Path> filePaths, String delimiter, String condition, String fieldsToExtract)
+            throws IOException {
+
+        List<List<String>> resultList = new ArrayList<>();
+
+        for (Path filePath : filePaths) {
+            // get the file content
+            String content = readFile(filePath.toString());
+
+            // Indices
+            List<String> fieldsIndices = new ArrayList<>(Arrays.asList(fieldsToExtract.split(",")));
+
+            // [ --- --- ---- ----, ----- ---- -----]
+            List<String> contentList = new ArrayList<>(Arrays.asList(content.split("\n")));
+
+            resultList = contentList.stream()
+                    .map(line -> {
+                        List<String> lineArr = Arrays.asList(line.split(","));
+                        return fieldsIndices.stream()
+                                .map(field -> lineArr.get(Integer.parseInt(field) - 1))
+                                .toList();
+                    })
+                    .toList();
+        }
+
+        return resultList.stream().map(res -> String.join(",", res)).collect(Collectors.joining("\n"));
+
     }
 
 }
