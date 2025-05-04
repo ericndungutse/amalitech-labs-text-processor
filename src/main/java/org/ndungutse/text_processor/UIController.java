@@ -28,6 +28,8 @@ public class UIController {
     @FXML
     private TextArea textArea;
     @FXML
+    private TextArea logTextArea;
+    @FXML
     private TextField patternField;
     @FXML
     private TextField replaceField;
@@ -63,6 +65,12 @@ public class UIController {
     // Fields to store match indices and current match index
     private List<int[]> matchIndices = new ArrayList<>();
     private int currentMatch = 0;
+
+    @FXML
+    public void initialize() {
+        // Set the logTextArea in AppContext so it can be accessed globally
+        AppContext.setLogTextArea(logTextArea);
+    }
 
     public void handleLoadFile() {
         FileChooser fileChooser = new FileChooser();
@@ -221,8 +229,10 @@ public class UIController {
                 .collect(Collectors.toList());
 
         try {
+            AppContext.log("Batch replace started with pattern: " + patternText);
             fileHandler.replacePatternInFiles(filePaths, patternText, replacementText);
             batchRegexStatusLabel.setText("Replaced in " + filePaths.size() + " file(s).");
+            AppContext.log("Batch replace completed: Replaced in " + filePaths.size() + " file(s).");
         } catch (IOException | PatternSyntaxException e) {
             e.printStackTrace();
             batchRegexStatusLabel.setText("Error: " + e.getMessage());
