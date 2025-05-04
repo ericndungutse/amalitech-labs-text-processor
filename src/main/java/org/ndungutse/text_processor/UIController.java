@@ -286,6 +286,21 @@ public class UIController {
         String condition = conditionField.getText().trim();
         String fieldsToExtract = extractExprField.getText().trim();
 
+        // Validate delimiter
+        if (delimiter.length() != 1 || Character.isLetterOrDigit(delimiter.charAt(0))) {
+            extractStatusLabel.setText("Invalid delimiter: must be a single special character.");
+            return;
+        }
+
+        // Only allows: alphanumeric (with _), valid operators, optional spacing
+        String conditionPattern = "^\\s*([A-Za-z0-9_]+)\\s*(<=|>=|!=|=|<|>)\\s*([A-Za-z0-9_]+)\\s*$";
+
+        if (!condition.isEmpty() && !condition.matches(conditionPattern)) {
+            extractStatusLabel
+                    .setText("Invalid condition. Use alphanumeric operands and valid operator (e.g., age >= 18).");
+            return;
+        }
+
         List<Path> filePaths = selectedFilePaths.stream()
                 .map(Path::of)
                 .collect(Collectors.toList());
@@ -298,9 +313,13 @@ public class UIController {
             extractStatusLabel.setText("Extraction successful.");
 
             textArea.setText(result);
-        } catch (Exception e) {
+        } catch (IndexOutOfBoundsException e) {
             extractStatusLabel.setText("Extraction failed: " + e.getMessage());
             System.err.println("Extraction error: " + e.getMessage());
+        } catch (IOException e) {
+            extractStatusLabel.setText("Extraction failed: " + e.getMessage());
+            System.err.println("Extraction error: " + e.getMessage());
+
         }
     }
 
