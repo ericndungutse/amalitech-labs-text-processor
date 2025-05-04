@@ -260,4 +260,7 @@ public class UIController {
         }
 
     }
+
+    public void handleExtract(ActionEvent event) {
+    }
 }
