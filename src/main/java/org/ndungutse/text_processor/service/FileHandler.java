@@ -13,6 +13,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 import java.util.stream.Collectors;
 
@@ -39,28 +40,7 @@ public class FileHandler {
     }
 
     public String replaceAll(String pattern, String replacement, String text) throws PatternSyntaxException {
-        // Extract matches using the regex service
-        List<String> matches = regexService.extractMatches(pattern, text);
-
-        // If there are no matches, return the original text
-        if (matches.isEmpty()) {
-            return text;
-        }
-
-        // Create a new StringBuilder to build the updated text
-        StringBuilder updatedText = new StringBuilder(text);
-
-        // Iterate over each match and replace it in the text
-        for (String match : matches) {
-            // Replace all occurrences of the match with the replacement string
-            int index = updatedText.indexOf(match);
-            while (index != -1) {
-                updatedText.replace(index, index + match.length(), replacement);
-                index = updatedText.indexOf(match, index + replacement.length());
-            }
-        }
-
-        return updatedText.toString();
+        return text.replaceAll(pattern, replacement);
     }
 
     public void replacePatternInFiles(List<Path> filePaths, String pattern, String replacement)
@@ -145,9 +125,23 @@ public class FileHandler {
             // Split into lines
             List<String> contentLines = new ArrayList<>(Arrays.asList(content.split("\n")));
 
-            // Filter lines if condition is present
+            // Apply condition if present
             if (condition != null && !condition.isBlank()) {
-                contentLines = Arrays.asList(filterLinesByCondition(contentLines, condition, delimiter).split("\n"));
+                String filtered = filterLinesByCondition(contentLines, condition, delimiter);
+
+                // Handle special case: no match
+                if (filtered.length() == 0) {
+                    if (finalResult.length() > 0) {
+                        finalResult.append("\n");
+                    }
+                    finalResult.append("No match found for condition [")
+                            .append(condition)
+                            .append("] in file: ")
+                            .append(filePath.getFileName());
+                    continue;
+                }
+
+                contentLines = Arrays.asList(filtered.split("\n"));
             }
 
             // Select fields if fieldsToExtract is present
@@ -247,7 +241,7 @@ public class FileHandler {
             String delimiter) {
         return contentList.stream()
                 .map(line -> {
-                    List<String> lineArr = Arrays.asList(line.split(delimiter));
+                    List<String> lineArr = Arrays.asList(line.split(Pattern.quote(delimiter)));
                     return fieldsIndices.stream()
                             .map(field -> lineArr.get(Integer.parseInt(field.trim()) - 1))
                             .collect(Collectors.joining(delimiter));
